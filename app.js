@@ -141,11 +141,11 @@ app.put('/api/users/:id', (req, res) => {
 });
 
 app.put('/api/movies/:id', (req, res) => {
-  const userId = req.params.id;
+  const movieId = req.params.id;
   const moviePropsToUpdate = req.body;
   connection.query(
     'UPDATE movies SET ? WHERE id = ?',
-    [moviePropsToUpdate, userId],
+    [moviePropsToUpdate, movieId],
     (err) => {
       if (err) {
         console.log(err);
