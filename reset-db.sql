@@ -59,7 +59,7 @@ CREATE TABLE `users` (
     PRIMARY KEY (`id`)
   );
 INSERT INTO
-  `users`
+  `users` (firstname, lastname, email, city, language, hashedPassword)
 VALUES
   (
     'John',
