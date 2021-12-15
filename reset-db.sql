@@ -4,49 +4,22 @@ CREATE TABLE `movies` (
   `title` varchar(255) NOT NULL,
   `director` varchar(255) NOT NULL,
   `year` varchar(255) NOT NULL,
-  `color` tinyint(1) NOT NULL,
+  `color` varchar(255) NOT NULL,
   `duration` int NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8;
-INSERT INTO
-  `movies` (title, director, year, color, duration)
-VALUES
-  ('Citizen Kane', 'Orson Wells', '1941', 0, 120),
-  (
-    'The Godfather',
-    'Francis Ford Coppola',
-    '1972',
-    1,
-    180
-  ),
-  (
-    'Pulp Fiction',
-    'Quentin Tarantino',
-    '1994',
-    1,
-    180
-  ),
-  (
-    'Apocalypse Now',
-    'Francis Ford Coppola',
-    '1979',
-    1,
-    150
-  ),
-  (
-    '2001 a space odyssey',
-    'Stanley Kubrick',
-    '1968',
-    1,
-    160
-  ),
-  (
-    'The Dark Knight',
-    'Christopher Nolan',
-    '2008',
-    1,
-    150
-  );
+  `user_id` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb3;
+
+INSERT INTO `movies` (`id`, `title`, `director`, `year`, `color`, `duration`, `user_id`) VALUES
+(1, 'Citizen Kane', 'Orson Wells', '1941', '0', 120, NULL),
+(2, 'The Godfather', 'Francis Ford Coppola', '1972', '1', 180, NULL),
+(3, 'Pulp Fiction', 'Quentin Tarantino', '1994', '1', 180, NULL),
+(4, 'Apocalypse Now', 'Francis Ford Coppola', '1979', '1', 150, NULL),
+(5, '2001 a space odyssey', 'Stanley Kubrick', '1968', '1', 160, NULL),
+(6, 'The Dark Knight', 'Christopher Nolan', '2008', '1', 150, NULL),
+(7, 'asd', 'asd', '2000', 'red', 123123, 7);
+
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
     `id` int NOT NULL AUTO_INCREMENT,

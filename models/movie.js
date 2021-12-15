@@ -9,7 +9,7 @@ const validate = (data, forCreation = true) => {
     title: Joi.string().max(255).presence(presence),
     director: Joi.string().max(255).presence(presence),
     year: Joi.number().integer().min(1888).presence(presence),
-    color: Joi.boolean().presence(presence),
+    color: Joi.string().presence(presence),
     duration: Joi.number().integer().min(1).presence(presence),
   }).validate(data, { abortEarly: false }).error;
 };
