@@ -8,7 +8,7 @@ CREATE TABLE `movies` (
   `duration` int NOT NULL,
   `user_id` int DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `user_id` (`user_id`),
+  KEY `user_id` (`user_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb3;
 
 INSERT INTO `movies` (`id`, `title`, `director`, `year`, `color`, `duration`, `user_id`) VALUES
