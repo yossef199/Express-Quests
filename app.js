@@ -17,6 +17,7 @@ app.use(express.json());
 app.get("/api/movies", (req, res) => {
   connection.query("SELECT * FROM movies", (err, result) => {
     if (err) {
+      console.error(err);
       res.status(500).send("Error retrieving data from database");
     } else {
       res.json(result);
@@ -31,6 +32,7 @@ app.post("/api/movies", (req, res) => {
     [title, director, year, color, duration],
     (err, result) => {
       if (err) {
+        console.error(err);
         res.status(500).send("Error saving the movie");
       } else {
         res.status(200).send("Movie successfully saved");
