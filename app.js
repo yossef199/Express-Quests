@@ -1,115 +1,128 @@
-const connection = require('./db-config');
-const express = require('express');
+const connection = require("./db-config");
+const express = require("express");
 const app = express();
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT ?? 3000;
 
 connection.connect((err) => {
   if (err) {
-    console.error('error connecting: ' + err.stack);
+    console.error("error connecting: " + err.stack);
   } else {
-    console.log('connected as id ' + connection.threadId);
+    console.log("connected as id " + connection.threadId);
   }
 });
 
 app.use(express.json());
 
-app.get('/api/movies', (req, res) => {
-  let sql = 'SELECT * FROM movies';
+app.get("/api/movies", (req, res) => {
+  let sql = "SELECT * FROM movies";
   const sqlValues = [];
+
   if (req.query.color) {
-    sql += ' WHERE color = ?';
+    sql += " WHERE color = ?";
     sqlValues.push(req.query.color);
   }
+
   if (req.query.max_duration) {
-    if (req.query.color) sql += ' AND duration <= ? ;';
-    else sql += ' WHERE duration <= ?';
+    if (req.query.color) {
+      sql += " AND duration <= ? ;";
+    } else {
+      sql += " WHERE duration <= ?";
+    }
 
     sqlValues.push(req.query.max_duration);
   }
 
-  connection.query(sql, sqlValues, (err, results) => {
+  connection.query(sql, sqlValues, (err, result) => {
     if (err) {
-      console.log(err);
-      res.status(500).send('Error retrieving movies from database');
+      console.error(err);
+      res.status(500).send("Error retrieving movies from database");
     } else {
-      res.json(results);
+      res.json(result);
     }
   });
 });
 
-app.get('/api/movies/:id', (req, res) => {
+app.get("/api/movies/:id", (req, res) => {
   const movieId = req.params.id;
   connection.query(
-    'SELECT * FROM movies WHERE id = ?',
+    "SELECT * FROM movies WHERE id = ?",
     [movieId],
-    (err, results) => {
+    (err, result) => {
       if (err) {
-        res.status(500).send('Error retrieving movie from database');
+        console.error(err);
+        res.status(500).send("Error retrieving movie from database");
+      } else if (result.length === 0) {
+        res.status(404).send("Movie not found");
       } else {
-        if (results.length) res.json(results[0]);
-        else res.status(404).send('Movie not found');
+        res.json(result[0]);
       }
     }
   );
 });
 
-app.get('/api/users', (req, res) => {
-  let sql = 'SELECT * FROM users';
+app.get("/api/users", (req, res) => {
+  let sql = "SELECT * FROM users";
   const sqlValues = [];
+
   if (req.query.language) {
-    sql += ' WHERE language = ?';
+    sql += " WHERE language = ?";
     sqlValues.push(req.query.language);
   }
-  connection.query(sql, sqlValues, (err, results) => {
+
+  connection.query(sql, sqlValues, (err, result) => {
     if (err) {
-      res.status(500).send('Error retrieving users from database');
+      console.error(err);
+      res.status(500).send("Error retrieving users from database");
     } else {
-      res.json(results);
+      res.json(result);
     }
   });
 });
 
-app.get('/api/users/:id', (req, res) => {
+app.get("/api/users/:id", (req, res) => {
   const userId = req.params.id;
   connection.query(
-    'SELECT * FROM users WHERE id = ?',
+    "SELECT * FROM users WHERE id = ?",
     [userId],
-    (err, results) => {
+    (err, result) => {
       if (err) {
-        res.status(500).send('Error retrieving user from database');
+        console.error(err);
+        res.status(500).send("Error retrieving user from database");
+      } else if (result.length === 0) {
+        res.status(404).send("User not found");
       } else {
-        if (results.length) res.json(results[0]);
-        else res.status(404).send('User not found');
+        res.json(result[0]);
       }
     }
   );
 });
 
-app.post('/api/movies', (req, res) => {
+app.post("/api/movies", (req, res) => {
   const { title, director, year, color, duration } = req.body;
   connection.query(
-    'INSERT INTO movies (title, director, year, color, duration) VALUES (?, ?, ?, ?, ?)',
+    "INSERT INTO movies (title, director, year, color, duration) VALUES (?, ?, ?, ?, ?)",
     [title, director, year, color, duration],
     (err, result) => {
       if (err) {
-        res.status(500).send('Error saving the movie');
+        console.error(err);
+        res.status(500).send("Error saving the movie");
       } else {
-        res.status(201).send('Movie successfully saved');
+        res.status(200).send("Movie successfully saved");
       }
     }
   );
 });
 
-app.post('/api/users', (req, res) => {
+app.post("/api/users", (req, res) => {
   const { firstname, lastname, email } = req.body;
   connection.query(
-    'INSERT INTO users (firstname, lastname, email) VALUES (?, ?, ?)',
+    "INSERT INTO users (firstname, lastname, email) VALUES (?, ?, ?)",
     [firstname, lastname, email],
     (err, result) => {
       if (err) {
         console.error(err);
-        res.status(500).send('Error saving the user');
+        res.status(500).send("Error saving the user");
       } else {
         const id = result.insertId;
         const createdUser = { id, firstname, lastname, email };
@@ -119,77 +132,78 @@ app.post('/api/users', (req, res) => {
   );
 });
 
-app.put('/api/users/:id', (req, res) => {
+app.put("/api/users/:id", (req, res) => {
   const userId = req.params.id;
-  const db = connection.promise();
-  let existingUser = null;
-  db.query('SELECT * FROM users WHERE id = ?', [userId])
-    .then(([results]) => {
-      existingUser = results[0];
-      if (!existingUser) return Promise.reject('RECORD_NOT_FOUND');
-      return db.query('UPDATE users SET ? WHERE id = ?', [req.body, userId]);
-    })
-    .then(() => {
-      res.status(200).json({ ...existingUser, ...req.body });
-    })
-    .catch((err) => {
-      console.error(err);
-      if (err === 'RECORD_NOT_FOUND')
+  const userPropsToUpdate = req.body;
+  connection.query(
+    "UPDATE users SET ? WHERE id = ?",
+    [userPropsToUpdate, userId],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send("Error updating a user");
+      } else if (result.affectedRows === 0) {
         res.status(404).send(`User with id ${userId} not found.`);
-      else res.status(500).send('Error updating a user');
-    });
+      } else {
+        res.sendStatus(204);
+      }
+    }
+  );
 });
 
-app.put('/api/movies/:id', (req, res) => {
+app.put("/api/movies/:id", (req, res) => {
   const movieId = req.params.id;
   const moviePropsToUpdate = req.body;
   connection.query(
-    'UPDATE movies SET ? WHERE id = ?',
+    "UPDATE movies SET ? WHERE id = ?",
     [moviePropsToUpdate, movieId],
-    (err) => {
-      if (err) {
-        console.log(err);
-        res.status(500).send('Error updating a movie');
-      } else {
-        res.status(200).send('Movie updated successfully 🎉');
-      }
-    }
-  );
-});
-
-app.delete('/api/users/:id', (req, res) => {
-  connection.query(
-    'DELETE FROM users WHERE id = ?',
-    [req.params.id],
     (err, result) => {
       if (err) {
-        console.log(err);
-        res.status(500).send('Error deleting an user');
+        console.error(err);
+        res.status(500).send("Error updating a movie");
       } else {
-        if (result.affectedRows) res.status(200).send('🎉 User deleted!');
-        else res.status(404).send('User not found.');
+        res.status(200).send("Movie updated successfully 🎉");
       }
     }
   );
 });
 
-app.delete('/api/movies/:id', (req, res) => {
+app.delete("/api/users/:id", (req, res) => {
+  const userId = req.params.id;
+  connection.query(
+    "DELETE FROM users WHERE id = ?",
+    [userId],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send("Error deleting an user");
+      } else {
+        res.sendStatus(204);
+      }
+    }
+  );
+});
+
+app.delete("/api/movies/:id", (req, res) => {
   const movieId = req.params.id;
   connection.query(
-    'DELETE FROM movies WHERE id = ?',
+    "DELETE FROM movies WHERE id = ?",
     [movieId],
     (err, result) => {
       if (err) {
-        console.log(err);
-        res.status(500).send('Error deleting a movie');
+        console.error(err);
+        res.status(500).send("Error deleting a movie");
       } else {
-        if (result.affectedRows) res.status(200).send('🎉 Movie deleted!');
-        else res.status(404).send('Movie not found');
+        res.sendStatus(204);
       }
     }
   );
 });
 
-app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
+app.listen(port, (err) => {
+  if (err) {
+    console.error("Something bad happened");
+  } else {
+    console.log(`Server is listening on ${port}`);
+  }
 });
