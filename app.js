@@ -10,7 +10,7 @@ const welcome = (req, res) => {
 };
 app.use(express.json());
 app.get("/", welcome);
-//salut
+
 const movieHandlers = require("./movieHandlers");
 
 app.get("/api/movies", movieHandlers.getMovies);
