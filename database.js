@@ -1,4 +1,8 @@
 require("dotenv").config();
+<<<<<<< HEAD
+=======
+
+>>>>>>> 8a14bdada552e1cc186da45a8ef621af97a4c274
 const mysql = require("mysql2/promise");
 
 const database = mysql.createPool({
@@ -18,4 +22,25 @@ database
     console.error(err);
   });
 
+<<<<<<< HEAD
+=======
+database
+  .query("select * from movies")
+  .then((result) => {
+    console.log(result);
+  })
+  .catch((err) => {
+    console.error(err);
+  });
+
+database
+  .query("select * from movies")
+  .then(([movies]) => {
+    console.log(movies);
+  })
+  .catch((err) => {
+    console.error(err);
+  });
+
+>>>>>>> 8a14bdada552e1cc186da45a8ef621af97a4c274
 module.exports = database;
